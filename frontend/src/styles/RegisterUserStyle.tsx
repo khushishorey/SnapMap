@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-const RegisterationStyles = StyleSheet.create({
+const RegisterUserStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFF5F5",
@@ -146,4 +146,4 @@ const RegisterationStyles = StyleSheet.create({
   },
 });
 
-export default RegisterationStyles;
+export default RegisterUserStyles;

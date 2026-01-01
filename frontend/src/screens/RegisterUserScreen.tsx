@@ -10,7 +10,7 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import RegisterationStyles from "../styles/RegisterationStyles";
+import RegisterUserStyle from "../styles/RegisterUserStyle";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenProps } from "../types";
@@ -25,7 +25,7 @@ const YEAR_OPTIONS = ["1st", "2nd", "3rd", "4th", "5th", "Graduate", "Other"];
 // Use API base URL from environment variable
 export const API_BASE_URL = Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
-const styles = RegisterationStyles;
+const styles = RegisterUserStyle;
 const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) => {
   const { user } = useUser();
   const { getToken } = useAuth();
