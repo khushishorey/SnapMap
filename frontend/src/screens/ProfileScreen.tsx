@@ -15,8 +15,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import Constants from "expo-constants";
 import type { ScreenProps } from "../types";
 import ProfileStyle from "../styles/ProfileStyle";
+
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
 const styles = ProfileStyle;
 
@@ -62,6 +66,8 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   
   // Edit form data
   const [editForm, setEditForm] = useState({
+    name: "",
+    bio: "",
     collegeName: "",
     phoneNo: "",
     year: "",
@@ -96,6 +102,8 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
   const openEditModal = () => {
     setEditForm({
+      name: profile.name,
+      bio: profile.bio || "",
       collegeName: profile.collegeName,
       phoneNo: profile.phoneNumber,
       year: profile.year,
@@ -152,6 +160,12 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
       const formData = new FormData();
       
+      if (editForm.name !== profile.name) {
+        formData.append("name", editForm.name);
+      }
+      if (editForm.bio !== profile.bio) {
+        formData.append("bio", editForm.bio);
+      }
       if (editForm.collegeName !== profile.collegeName) {
         formData.append("collegeName", editForm.collegeName);
       }
@@ -170,8 +184,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
         } as any);
       }
 
-      const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
-      const response = await fetch(`${apiUrl}/api/v1/auth/profile-update`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/profile-update`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -184,6 +197,8 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
       if (response.ok) {
         setProfile((prev) => ({
           ...prev,
+          name: editForm.name || prev.name,
+          bio: editForm.bio || prev.bio,
           collegeName: editForm.collegeName || prev.collegeName,
           phoneNumber: editForm.phoneNo || prev.phoneNumber,
           year: editForm.year || prev.year,
@@ -318,6 +333,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
               </TouchableOpacity>
             </View>
 
+            <ScrollView showsVerticalScrollIndicator={false}>
             {/* Profile Image Picker */}
             <TouchableOpacity
               style={[styles.profileImageContainer, { alignSelf: "center", marginBottom: 24 }]}
@@ -336,6 +352,32 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
                 <Ionicons name="camera" size={18} color="#fff" />
               </View>
             </TouchableOpacity>
+
+            {/* Name Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Name</Text>
+              <TextInput
+                style={styles.textInput}
+                value={editForm.name}
+                onChangeText={(text) => setEditForm((prev) => ({ ...prev, name: text }))}
+                placeholder="Enter your name"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* Bio Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Bio</Text>
+              <TextInput
+                style={[styles.textInput, { height: 80, textAlignVertical: "top" }]}
+                value={editForm.bio}
+                onChangeText={(text) => setEditForm((prev) => ({ ...prev, bio: text }))}
+                placeholder="Write something about yourself"
+                placeholderTextColor="#999"
+                multiline
+                numberOfLines={3}
+              />
+            </View>
 
             {/* College Name Input */}
             <View style={styles.inputContainer}>
@@ -386,6 +428,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
                 <Text style={styles.saveButtonText}>Save Changes</Text>
               )}
             </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
