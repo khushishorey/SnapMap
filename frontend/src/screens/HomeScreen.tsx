@@ -1,20 +1,69 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+  Image,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import * as Location from "expo-location";
 import type { ScreenProps } from "../types";
 import { useUser } from "@clerk/clerk-expo";
 import HomeStyle from "../styles/HomeStyle";
-import { useAuth } from "@clerk/clerk-expo";
-import { CommonActions } from "@react-navigation/native";
+import PersonIcon from "../assets/icons/PersonIcon";
+import Constants from "expo-constants";
 
 const styles = HomeStyle;
 
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
+
+type PhotoMarker = {
+  id: string;
+  latitude: number;
+  longitude: number;
+};
+
 const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
   const { user } = useUser();
-  // const { signOut } = useAuth();
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [photos, setPhotos] = useState<PhotoMarker[]>([]);
 
-  console.log("user", user);
+  const getPhotos = async (): Promise<PhotoMarker[]> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/photos/all-photos`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch photos:", response.statusText);
+        return [];
+      }
+
+      const data = await response.json();
+      const markers: PhotoMarker[] = data.map((photo: any) => ({
+        id: photo._id,
+        longitude: photo.location.coordinates[0],
+        latitude: photo.location.coordinates[1],
+      }));
+
+      return markers;
+    } catch (error) {
+      console.error("Error fetching photos:", error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -24,71 +73,182 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
     }
   }, [user, navigation]);
 
-  // const logout = async () => {
-  //   try {
-  //     // await signOut();
-  //     navigation.dispatch(
-  //       CommonActions.reset({
-  //         index: 0,
-  //         routes: [{ name: "SplashScreen" }],
-  //       })
-  //     );
-  //   } catch (error) {
-  //     console.error("Logout failed:", error);
-  //   }
-  // };
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === "granted") {
+        const loc = await Location.getCurrentPositionAsync();
+        setLocation({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        });
+      }
+    })();
+
+    (async () => {
+      const fetchedPhotos = await getPhotos();
+      setPhotos(fetchedPhotos);
+    })();
+  }, []);
+
+  // Default location if permission not granted (for demo purposes)
+  const defaultLocation = {
+    latitude: 25.3176,
+    longitude: 82.9739,
+  };
+
+  const mapLocation = location || defaultLocation;
+  const activeCount = photos.length || 124;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../assets/images/icon.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require("../assets/images/icon.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <View style={styles.appNameContainer}>
+              <Text style={styles.appNameSnap}>SNAP</Text>
+              <Text style={styles.appNameMap}>MAP</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.notificationButton}
+            onPress={() => {
+              // Navigate to notifications if needed
+            }}
+          >
+            <Ionicons name="notifications-outline" size={24} color="#9CA3AF" />
+            <View style={styles.notificationBadge} />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.mapContainer}>
-        <Image
-          source={require("../assets/images/map.png")}
-          style={styles.mapImage}
-          resizeMode="cover"
-        />
-      </View>
+        {/* Discovery Section */}
+        <View style={styles.discoverySection}>
+          <Text style={styles.discoveryTitle}>
+            <Text style={styles.discoverText}>Discover</Text>
+            {"\n"}
+            <Text style={styles.campusLifeText}>Campus Life</Text>
+          </Text>
+          <Text style={styles.discoverySubtitle}>
+            See what's buzzing on campus right now.
+          </Text>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("MapScreen")}
-        >
-          <Text style={styles.buttonText}>EXPLORE MAP</Text>
-        </TouchableOpacity>
+        {/* Map Card */}
+        <View style={styles.mapCard}>
+          {/* LIVE Indicator */}
+          <View style={styles.liveIndicator}>
+            <View style={styles.liveDot} />
+            <Text style={styles.liveText}>LIVE</Text>
+            <Text style={styles.activeText}>{activeCount} Active</Text>
+          </View>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("EventGalleryScreen")}
-        >
-          <Text style={styles.buttonText}>EVENT GALLERY</Text>
-        </TouchableOpacity>
+          {/* Send Button */}
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={() => {
+              // Handle send/share action
+            }}
+          >
+            <Ionicons name="paper-plane-outline" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("CameraScreen")}
-        >
-          <Ionicons
-            name="camera-outline"
-            size={24}
-            color="#FFFFFF"
-            style={styles.cameraIcon}
-          />
-          <Text style={styles.buttonText}>TAKE PHOTO</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.logout}>
-        <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
-          <Text style={styles.buttonText}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+          {/* Map */}
+          <MapView
+            style={styles.map}
+            provider={PROVIDER_GOOGLE}
+            region={{
+              latitude: mapLocation.latitude,
+              longitude: mapLocation.longitude,
+              latitudeDelta: 0.002,
+              longitudeDelta: 0.002,
+            }}
+            showsUserLocation={true}
+            showsMyLocationButton={false}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            pitchEnabled={false}
+            rotateEnabled={false}
+          >
+            {photos.length > 0 &&
+              photos.map((photo) => (
+                <Marker
+                  key={photo.id}
+                  coordinate={{
+                    latitude: photo.latitude,
+                    longitude: photo.longitude,
+                  }}
+                />
+              ))}
+          </MapView>
+
+          {/* Full Campus Map Card - Floating over map */}
+          <TouchableOpacity
+            style={styles.fullMapCard}
+            onPress={() => navigation.navigate("MapScreen")}
+          >
+            <View style={styles.fullMapIconContainer}>
+              <MaterialCommunityIcons
+                name="map"
+                size={24}
+                color="#FFFFFF"
+              />
+            </View>
+            <View style={styles.fullMapTextContainer}>
+              <Text style={styles.fullMapSubtext}>Tap to explore</Text>
+              <Text style={styles.fullMapText}>Full Campus Map</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#000000" />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+<View style={styles.bottomNavWrapper}>
+  <View style={styles.bottomNav}>
+    {/* Left */}
+    <TouchableOpacity
+      style={styles.navItem}
+      onPress={() => navigation.navigate("MapScreen")}
+    >
+      <MaterialCommunityIcons
+        name="compass-outline"
+        size={26}
+        color="#9CA3AF"
+      />
+    </TouchableOpacity>
+
+    {/* Spacer for center button */}
+    <View style={{ width: 72 }} />
+
+    {/* Right */}
+    <TouchableOpacity
+      style={styles.navItem}
+      onPress={() => navigation.navigate("ProfileScreen")}
+    >
+      <PersonIcon width={26} height={26} color="#9CA3AF" />
+    </TouchableOpacity>
+  </View>
+
+  {/* Center Camera Button */}
+  <TouchableOpacity
+    style={styles.centerButton}
+    onPress={() => navigation.navigate("CameraScreen")}
+    activeOpacity={0.85}
+  >
+    <FontAwesome name="camera" size={26} color="#FFFFFF" />
+  </TouchableOpacity>
+</View>
     </SafeAreaView>
   );
 };
