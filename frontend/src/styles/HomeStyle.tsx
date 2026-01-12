@@ -97,7 +97,7 @@ const HomeStyle = StyleSheet.create({
   },
   mapCard: {
     marginHorizontal: 20,
-    marginBottom: 0,
+    marginBottom: 16,
     borderRadius: 20,
     backgroundColor: "#FFFFFF",
     overflow: "hidden",
@@ -175,10 +175,8 @@ const HomeStyle = StyleSheet.create({
     elevation: 4,
   },
   fullMapCard: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
@@ -193,7 +191,6 @@ const HomeStyle = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 12,
-    zIndex: 10,
   },
   fullMapIconContainer: {
     width: 40,

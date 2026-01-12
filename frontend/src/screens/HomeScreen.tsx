@@ -194,26 +194,26 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
                 />
               ))}
           </MapView>
-
-          {/* Full Campus Map Card - Floating over map */}
-          <TouchableOpacity
-            style={styles.fullMapCard}
-            onPress={() => navigation.navigate("MapScreen")}
-          >
-            <View style={styles.fullMapIconContainer}>
-              <MaterialCommunityIcons
-                name="map"
-                size={24}
-                color="#FFFFFF"
-              />
-            </View>
-            <View style={styles.fullMapTextContainer}>
-              <Text style={styles.fullMapSubtext}>Tap to explore</Text>
-              <Text style={styles.fullMapText}>Full Campus Map</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#000000" />
-          </TouchableOpacity>
         </View>
+
+        {/* Full Campus Map Card - Below map */}
+        <TouchableOpacity
+          style={styles.fullMapCard}
+          onPress={() => navigation.navigate("MapScreen")}
+        >
+          <View style={styles.fullMapIconContainer}>
+            <MaterialCommunityIcons
+              name="map"
+              size={24}
+              color="#FFFFFF"
+            />
+          </View>
+          <View style={styles.fullMapTextContainer}>
+            <Text style={styles.fullMapSubtext}>Tap to explore</Text>
+            <Text style={styles.fullMapText}>Full Campus Map</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#000000" />
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Bottom Navigation */}
