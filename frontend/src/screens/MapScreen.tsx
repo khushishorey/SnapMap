@@ -16,6 +16,7 @@ import MapStyle from "../styles/MapStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
 import { useProfile } from "../context/ProfileContext";
+import { useUser } from "@clerk/clerk-expo";
 
 const styles = MapStyle;
 
@@ -39,6 +40,16 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
   const [photos, setPhotos] = useState<PhotoMarker[]>([]);
 
   const { profile } = useProfile();
+  const { user } = useUser();
+
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+
+  const profileImage =
+    profile?.profileImage ||
+    user?.imageUrl ||
+    (email
+      ? `https://api.dicebear.com/7.x/initials/png?seed=${email}`
+      : undefined);
 
   const defaultLocation: Coordinates = {
     latitude: 25.3176,
@@ -162,16 +173,10 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
           style={styles.profileButton}
           onPress={() => navigation.navigate("ProfileScreen")}
         >
-          {profile?.profileImage ? (
+          {profileImage && (
             <Image
-              source={{ uri: profile.profileImage }}
+              source={{ uri: profileImage }}
               style={styles.profileAvatar}
-            />
-          ) : (
-            <Ionicons
-              name="person-circle-outline"
-              size={28}
-              color="#f43f5e"
             />
           )}
         </TouchableOpacity>
