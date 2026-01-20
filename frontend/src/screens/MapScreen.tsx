@@ -17,6 +17,7 @@ import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
 import { useProfile } from "../context/ProfileContext";
 import { useUser } from "@clerk/clerk-expo";
+import SnapScreen from "./SnapScreen";
 
 const styles = MapStyle;
 
@@ -33,6 +34,8 @@ type PhotoMarker = {
   id: string;
   latitude: number;
   longitude: number;
+  imageURL: string[];
+  caption: string;
 };
 
 const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
@@ -81,6 +84,8 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
         id: photo._id,
         longitude: photo.location.coordinates[0],
         latitude: photo.location.coordinates[1],
+        imageURL: photo.imageUrl,
+        caption: photo.caption,
       }));
 
       return markers;
@@ -135,14 +140,25 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
         showsUserLocation
         showsMyLocationButton
       >
-        {photos.map((photo) => (
-          <Marker
+        {photos.map((photo, idx) => (
+          <View
+          key={idx}>
+            <Marker
             key={photo.id}
             coordinate={{
               latitude: photo.latitude,
               longitude: photo.longitude,
             }}
-          />
+            image={require("../assets/images/b.png")}
+            onPress={() => navigation.navigate("SnapScreen", {
+              imageURL: photo.imageURL,
+              caption: photo.caption
+            })}
+            
+
+            />
+          </View>
+          
         ))}
       </MapView>
 
