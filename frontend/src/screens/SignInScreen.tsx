@@ -36,7 +36,7 @@ const SignInScreen = ({ navigation }: ScreenProps<"SignInScreen">) => {
 
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
-        // Navigation handled by useEffect
+        // navigation handled by useEffect
       }
     } catch (err) {
       console.error("Sign in error:", err);
@@ -79,6 +79,7 @@ const SignInScreen = ({ navigation }: ScreenProps<"SignInScreen">) => {
       <Toast
         visible={showErrorToast}
         message="Sign in failed. Please try again."
+        success={false}
         onHide={() => setShowErrorToast(false)}
       />
     </View>

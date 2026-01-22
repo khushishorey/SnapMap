@@ -239,6 +239,7 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
       <Toast
         visible={showSuccessToast}
         message="Registration completed successfully"
+        success={true}
         onHide={() => {
           setShowSuccessToast(false);
           navigation.replace("CameraPermissionScreen");
@@ -249,8 +250,10 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
       <Toast
         visible={showErrorToast}
         message="Registration failed"
+        success={false}
         onHide={() => setShowErrorToast(false)}
       />
+
     </ScrollView>
   );
 };
