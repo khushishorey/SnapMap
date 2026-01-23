@@ -149,7 +149,7 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
               latitude: photo.latitude,
               longitude: photo.longitude,
             }}
-            image={require("../assets/images/b.png")}
+            image={require("../assets/images/multi-photo-icon.png")}
             onPress={() => navigation.navigate("SnapScreen", {
               imageURL: photo.imageURL,
               caption: photo.caption
