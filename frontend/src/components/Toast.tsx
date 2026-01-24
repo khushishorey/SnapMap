@@ -78,7 +78,7 @@ const Toast: React.FC<ToastProps> = ({ message, visible, onHide, success }) => {
         <Ionicons
           name={success ? "checkmark-circle" : "close-circle"}
           size={22}
-          color={success ? "#22C55E" : "#EF4444"}
+          color={success ? "#22C55E" : "#9CA3AF"}
         />
 
         <Text style={styles.text}>{message}</Text>
