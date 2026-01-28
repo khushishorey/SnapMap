@@ -44,15 +44,6 @@ const CameraStyle = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
-  shutterOuter: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 4,
-    borderColor: "#0e0d0dff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   shutterInnerButton: {
     width: 56,
     height: 56,
@@ -179,6 +170,40 @@ settingsButton: {
 
 settingsIcon: {
   fontSize: 20,
+},
+iconButton: {
+  width: 44,
+  height: 44,
+  borderRadius: 22,
+  backgroundColor: "rgba(0,0,0,0.6)",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+iconCircle: {
+  width: 44,
+  height: 44,
+  borderRadius: 22,
+  backgroundColor: "#EDEDED",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+shutterOuter: {
+  width: 72,
+  height: 72,
+  borderRadius: 36,
+  borderWidth: 4,
+  borderColor: "#fff",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+shutterInner: {
+  width: 54,
+  height: 54,
+  borderRadius: 27,
+  backgroundColor: "#fff",
 },
 
 
